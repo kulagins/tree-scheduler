@@ -11,6 +11,27 @@
 #include "lib-io-tree-utils.h"
 #include "heuristics.h"
 
+void RunWithClusterConfig(int clusterConfig, int *chstart, int *children, Ctree *treeobj, double memorySize, int num_processors, io_method_t method)
+{   
+    double *memorySizesA2 = new double[num_processors];
+    for (int k = 0; k < num_processors; k++)
+    {
+        memorySizesA2[k] = memorySize + k * memorySize / num_processors;
+    }
+    switch (clusterConfig)
+    {
+    case 1:       
+        MemoryCheck(treeobj, chstart, children, memorySize, method);
+        break;
+    case 2:        
+        MemoryCheckA2(treeobj, chstart, children, memorySizesA2, num_processors, method);
+        break;
+    case 3:
+    default:
+        std::invalid_argument("not implemented");
+    }
+}
+
 int main(int argc, const char *argv[])
 {
     int tree_size = 0;
@@ -40,7 +61,7 @@ int main(int argc, const char *argv[])
 
     uint64_t count;
     string stage2heuristic;
-    int clusterConfig;
+    int clusterConfig = atoi(argv[5]);
 
     cout.precision(3);
 
@@ -84,8 +105,6 @@ int main(int argc, const char *argv[])
         {
             Ctree *treeobj = new Ctree(tree_size, prnts, spacewghts, ewghts, timewghts);
 
-            memorySizesA2 = new double[num_processors];
-
             memory_constraint = memory_constraint_options[i];
             if (memory_constraint == 1)
             {
@@ -99,31 +118,28 @@ int main(int argc, const char *argv[])
             {
                 memorySize = minMem;
             }
-            //   for( int i=-num_processors/2; i<num_processors/2+1; i++){
-            //          memorySizesA2[i] = memorySize + i*memorySize/num_processors;
-            // }
-
             time = clock();
             switch (stage2Method)
             {
             case 0:
-                stage2heuristic = "FIRST_FIT";
+                stage2heuristic = "FIRST_FIT";               
                 RunWithClusterConfig(clusterConfig, chstart, children, treeobj, memorySize, num_processors, FIRST_FIT); //
                 break;
             case 1:
                 stage2heuristic = "LARGEST_FIT";
-                 RunWithClusterConfig(clusterConfig, chstart, children, treeobj, memorySize, num_processors, LARGEST_FIT); //
+                RunWithClusterConfig(clusterConfig, chstart, children, treeobj, memorySize, num_processors, LARGEST_FIT); //
                 break;
             case 2:
                 stage2heuristic = "IMMEDIATELY";
-                 RunWithClusterConfig(clusterConfig, chstart, children, treeobj, memorySize, num_processors, IMMEDIATELY); 
+                RunWithClusterConfig(clusterConfig, chstart, children, treeobj, memorySize, num_processors, IMMEDIATELY);
                 break;
 
             default:
                 stage2heuristic = "FIRST_FIT";
-                 RunWithClusterConfig(clusterConfig, chstart, children, treeobj, memorySize, num_processors, FIRST_FIT); //
+                RunWithClusterConfig(clusterConfig, chstart, children, treeobj, memorySize, num_processors, FIRST_FIT); //
                 break;
             }
+           
             time = clock() - time;
 
             makespan = treeobj->GetRoot()->GetMSCost(true, true);
@@ -176,29 +192,6 @@ int main(int argc, const char *argv[])
 
     return 0;
 }
-
-int RunWithClusterConfig(int clusterConfig, int *chstart, int *children, Ctree *treeobj, double memorySize, int num_processors, io_method_t method)
-{
-    double *memorySizesA2;
-    for (int i = 0; i < num_processors; i++)
-    {
-        memorySizesA2[i] = memorySize + i * memorySize / num_processors;
-    }
-    switch (clusterConfig)
-    {
-    case 1:
-        MemoryCheck(treeobj, chstart, children, memorySize, method);
-        break;
-    case 2:
-        MemoryCheckA2(treeobj, chstart, children, memorySizesA2, num_processors, method);
-        break;
-    case 3:
-    default:
-        std::invalid_argument("not implemented");
-    }
-}
-
-
 
 //Created by changjiang GOU on 10/05/2018.
 //Copyright © 2018 Changjiang GOU. All rights reserved.

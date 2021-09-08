@@ -1897,16 +1897,16 @@ void MemoryCheckA2(Ctree* tree, int* chstart, int*children, double* const memory
     int rootid;
     tree->GetRoot()->BreakEdge();
     
-    cout<<"Subtrees' roots: ";
+   // cout<<"Subtrees' roots: ";
     unsigned long treeSize=tree->GetNodes()->size();
     for (unsigned int i=treeSize; i>=1; --i) {
         currentnode=tree->GetNode(i);
         if (currentnode->IsBorken()) {
-            cout<<i<<" ";
+            //cout<<i<<" ";
             subtreeRoots.push_back(currentnode);
         }
     }
-    cout<<endl;
+   // cout<<endl;
     
     double maxoutD, memory_required;
     schedule_t * schedule_f = new schedule_t();

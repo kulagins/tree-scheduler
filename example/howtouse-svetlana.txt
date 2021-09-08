@@ -14,7 +14,8 @@ launch.json:
             //"args": ["-s", "-c", "0.001", "-n", "100", "-d", "../../realTrees/", "treesList.txt"],
             //"-q"s
             //[ "-s", "-c 0.001", "-n 1000", "-l","-d", "../../real_Trees/", "-b", "../../result/brokenEdges/brokenEdges","split_12.txt", "treesList.txt"],
-            "args": [ "${workspaceFolder}/real_Trees/", "dump.0.1.amd.AMD.G2_circuit-1412.tree.nf", "0.1", "10", "-l","-d", "../../real_Trees/", "-b", "../../result/brokenEdges/brokenEdges","split_12.txt", "treesList.txt"],//, ">> output.txt"],
+            "args": [ "${workspaceFolder}/real_Trees/", "dump.0.1.amd.AMD.G2_circuit-1412.tree.nf", "0.1", "10", "1"],
+            //, "-l","-d", "../../real_Trees/", "-b", "../../result/brokenEdges/brokenEdges","split_12.txt", "treesList.txt"],//, ">> output.txt"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
