@@ -573,7 +573,7 @@ public:
   }
 
   Cnode *GetNode(unsigned int node_id) const
-  {
+  {    
     return nodes->at(node_id - 1);
   }
 

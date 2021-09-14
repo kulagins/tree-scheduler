@@ -148,6 +148,7 @@ void explore(Cnode * node, double available_memory,list<Cnode*> * L_init, schedu
 #ifdef DEBUG_USING_MINMEM
       explore(*current_node, (*current_node)->Mavail,NULL,NULL, m_j, Lj,Sj,(*current_node)->Mpeak,quiet,depth+1,count,minmem_trace,N);
 #else
+     // cout<<"explore id "<<(*current_node)->GetId()<<" mavl "<< (*current_node)->Mavail<<" depth "<<depth+1<<" cnt "<<count<<" \n";
       explore(*current_node, (*current_node)->Mavail,NULL,NULL, m_j, Lj,Sj,(*current_node)->Mpeak,quiet,depth+1,count);
 #endif
 

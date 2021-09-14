@@ -464,8 +464,8 @@ double unload_furthest_nodes(Ctree* tree, vector<unsigned int> & unloaded_nodes,
         
         unloaded_nodes.push_back((*far_node).first);
         
-        ////cout<<"-------LSNF remove "<<local_data_to_unload<<endl;
-        ////cout<<"break edge "<<far_node->first<<endl;
+        cout<<"-------LSNF remove "<<local_data_to_unload<<endl;
+        cout<<"break edge "<<far_node->first<<endl;
         tree->GetNode(far_node->first)->BreakEdge();//break this edge
         loaded_nodes.pop_front();
     }

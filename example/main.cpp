@@ -16,7 +16,7 @@ void RunWithClusterConfig(int clusterConfig, int *chstart, int *children, Ctree 
     double *memorySizesA2 = new double[num_processors];
     for (int k = 0; k < num_processors; k++)
     {
-        memorySizesA2[k] = memorySize + k * memorySize / num_processors;
+        memorySizesA2[k] = memorySize/4 + k * memorySize / num_processors;
     }
     switch (clusterConfig)
     {
@@ -67,11 +67,11 @@ int main(int argc, const char *argv[])
 
     std::cout << "MemoryConstraint AmountSubtrees AmountProcessors Makespan Heuristic TimeConsuming" << std::endl;
 
-    ifstream OpenFile(dir + "dump.0.1.amd.AMD.G2_circuit-1412.tree.nf");
+    ifstream OpenFile(dir + argv[2]);
     // do
     //   {
     OpenFile >> treename;
-    treename = "dump.0.1.amd.AMD.G2_circuit-1412.tree.nf";
+    treename = argv[2];
     //treename = readTree();
     parse_tree((dir + treename).c_str(), &tree_size, &prnts, &spacewghts, &ewghts, &timewghts);
 
@@ -91,7 +91,7 @@ int main(int argc, const char *argv[])
     makespan = treeobj->GetRoot()->GetMSCost();
     number_subtrees = 1;
     time = clock() - time;
-    cout << treename << " " << NPR << " " << CCR << " NA " << number_subtrees << " " << num_processors << " " << makespan << " Sequence " << time << endl;
+    cout <<  number_subtrees << " " << num_processors << " " << makespan << " Sequence " << time << endl;
 
     schedule_t *schedule_f = new schedule_t();
     count = 0;

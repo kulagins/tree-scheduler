@@ -1061,14 +1061,14 @@ double ASAP(Ctree* tree, unsigned int num_processors, unsigned int depth){//dept
             LargestNode->BreakEdge();//break edge
             BrokenEdges.push_back(LargestNode);
             temp=tree->GetRoot()->GetMSCost(true, true);
-            //cout<<"Break edge "<<LargestNode->GetId()<<", makespan now: "<<temp;
+            cout<<"Break edge "<<LargestNode->GetId()<<", makespan now: "<<temp;
             num_processors--;
             if (temp<minimumMS) {
                 minimumMS=temp;
                 step_minimumMS=BrokenEdges.size();
-                //cout<<", makespan decreased";
+                cout<<", makespan decreased";
             }
-            //cout<<endl;
+            cout<<endl;
         }
         
         currentNode=LargestNode;
@@ -1938,7 +1938,7 @@ void MemoryCheckA2(Ctree* tree, int* chstart, int*children, double* const memory
         
         //cout<<"Subtree "<<subtreeRoot->GetId()<<" needs memory "<<memory_required;
         double memorySizeOnCurrentProcessor = memory_sizes[currentProcessor];
-
+        currentProcessor++;
         if (memory_required>memorySizeOnCurrentProcessor) {
             //cout<<", larger than what is available: "<<memory_size<<endl;
             
@@ -1967,7 +1967,7 @@ void MemoryCheckA2(Ctree* tree, int* chstart, int*children, double* const memory
         }
         //cout<<endl;
 
-        currentProcessor++;
+      
         
         delete [] ewghts;
         delete [] timewghts;
