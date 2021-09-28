@@ -14,7 +14,7 @@
             //"-q"s
             //[ "-s", "-c 0.001", "-n 1000", "-l","-d", "../../real_Trees/", "-b", "../../result/brokenEdges/brokenEdges","split_12.txt", "treesList.txt"],
             //"dump.0.1.amd.Andrews.Andrews-924.tree.nf"
-            "args": [ "${workspaceFolder}/real_Trees/trees/", "dump.0.1.amd.Bova.rma10-374.tree.nf", "0.1", "10", "1"],
+            "args": [ "${workspaceFolder}/real_Trees/trees/", "treesList.txt", "0.1", "8000", "2", "0"],
             //, "-l","-d", "../../real_Trees/", "-b", "../../result/brokenEdges/brokenEdges","split_12.txt", "treesList.txt"],//, ">> output.txt"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -28,12 +28,11 @@
                     "ignoreFailures": true
                 }
             ],
-           // "preLaunchTask": "C/C++: g++ Aktive Datei kompilieren",
+           "preLaunchTask": "C/C++: g++ Aktive Datei kompilieren",
            // "miDebuggerPath": "/usr/bin/gdb"
         }
     ]
 }
-
 
 {
     "tasks": [
