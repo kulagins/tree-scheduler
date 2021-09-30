@@ -18,7 +18,9 @@ double SplitSubtrees(Cnode* root, unsigned long num_processor, double twolevel, 
 double ImprovedSplit(Ctree* tree, unsigned int number_processor, int* chstart, int* childrenID);
 //double ImprovedSplit(Ctree* tree, unsigned int number_processor);
 double Merge(Ctree* tree, unsigned int num_subtrees, unsigned int processor_number, double const memory_size,int * chstart,int * childrenID, bool CheckMemory);
-double MergeV2(Ctree* tree, unsigned int num_subtrees, unsigned int processor_number, double const memory_size,int * chstart,int * childrenID, bool CheckMemory);
+double MergeV2(Ctree* tree, unsigned int num_subtrees, unsigned int processor_number, 
+                vector<double> memory_sizes, std::map<int, int> &taskToPrc, std::map<int, bool> &isProcBusy,
+                int * chstart,int * childrenID, bool CheckMemory);
 double ASAP(Ctree* tree, unsigned int num_processors, unsigned int depth);
 double ASAP(Ctree* tree, unsigned int num_processors);
 unsigned long AvoidChain(Ctree* tree);

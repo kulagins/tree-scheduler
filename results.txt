@@ -1,0 +1,73 @@
+ AmountSubtrees AmountProcessors Makespan Heuristic TimeConsuming
+dump.0.1.amd.Bova.rma10-374.tree.nf 10 0.1 NA 1 281040 7.1e+05 Sequence 2527
+4e+05 4.8e+05
+104 281040 2.2e+05 FIRST_FIT+SplitAgain 247534
+104 281040 2.2e+05 LARGEST_FIT+SplitAgain 253960
+105 281040 2.2e+05 IMMEDIATELY+SplitAgain 220860
+
+
+
+ AmountSubtrees AmountProcessors Makespan Heuristic TimeConsuming
+dump.0.1.amd.Bova.rma10-374.tree.nf 10 0.1 NA 1 281040 7.1e+05 Sequence 2583
+4e+05 4.8e+05
+104 281040 2.2e+05 FIRST_FIT+SplitAgain 275241
+104 281040 2.2e+05 LARGEST_FIT+SplitAgain 231865
+105 281040 2.2e+05 IMMEDIATELY+SplitAgain 468924
+
+
+
+
+
+
+MEINS:
+ AmountSubtrees AmountProcessors Makespan Heuristic TimeConsuming
+dump.0.1.amd.Bova.rma10-374.tree.nf 1e+03 0.1 NA 1 47 7.1e+05 Sequence 7850
+4e+05 4.8e+05
+47 47 2.5e+05 FIRST_FIT+SplitAgain 216854
+47 47 2.5e+05 LARGEST_FIT+SplitAgain 244700
+47 47 2.5e+05 IMMEDIATELY+SplitAgain 213436
+
+
+ANNA'S:
+
+248992
+248992
+
+
+
+
+
+
+
+
+
+
+MINE
+ AmountSubtrees AmountProcessors Makespan Heuristic TimeConsuming
+dump.0.1.amd.Bova.rma10-374.tree.nf 4000 0 NA 1 12 710442 Sequence 3323
+root 710442
+counts 113 0 0 0 3885 23872 1854
+after 2nd step 8 12 710464 FIRST_FIT+Nothing 0
+12 12 528775 FIRST_FIT+SplitAgain 69344
+root 710442
+counts 113 0 0 0 3885 23872 1854
+after 2nd step 8 12 710464 LARGEST_FIT+Nothing 0
+12 12 528775 LARGEST_FIT+SplitAgain 64571
+root 710442
+counts 114 1 1 0 3884 23870 1853
+after 2nd step 11 12 710500 IMMEDIATELY+Nothing 0
+12 12 622192 IMMEDIATELY+SplitAgain 30772
+
+
+
+
+
+GOU
+ AmountSubtrees AmountProcessors Makespan Heuristic TimeConsuming
+dump.0.1.amd.Bova.rma10-374.tree.nf 4000 0 NA 1 12 710442 Sequence 2675
+after 2nd step 11 12 710483 FIRST_FIT+Nothing 0
+12 12 680360 FIRST_FIT+SplitAgain 16369
+after 2nd step 11 12 710483 LARGEST_FIT+Nothing 0
+12 12 680360 LARGEST_FIT+SplitAgain 17268
+after 2nd step 11 12 710500 IMMEDIATELY+Nothing 0
+12 12 622192 IMMEDIATELY+SplitAgain 19085
