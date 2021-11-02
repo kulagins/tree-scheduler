@@ -1,5 +1,5 @@
 ####################version three##########
-#first fit, splitAgain/Merge
+#first fit, splitAgain/merge
 #split + firstfit
 
 

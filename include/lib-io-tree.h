@@ -24,11 +24,11 @@ typedef enum {FURTHEST_NODE=1, BEST_K_COMBI, BEST_FIT_ABS, FIRST_FIT_ABS, BEST_F
 
   
 /* Bora's functions (mex interface) */
-double MaxOutDegree(int N, int * prnts, double * nwghts, double * ewghts);
+double max_out_degree(int N, int * prnts, double * nwghts, double * ewghts);
 #ifndef __cplusplus
-//double IOCounter(int N, int * prnts, double * nwghts, double * ewghts, int * schedule, double available_memory,int divisible,io_method_t method);
+//double io_counter(int N, int * prnts, double * nwghts, double * ewghts, int * schedule, double available_memory,int divisible,io_method_t method);
 #else
-//double IOCounter(int N, int * prnts, double * nwghts, double * ewghts, int * schedule, double available_memory,int divisible,io_method_t method=FURTHEST_NODE);
+//double io_counter(int N, int * prnts, double * nwghts, double * ewghts, int * schedule, double available_memory,int divisible,io_method_t method=FURTHEST_NODE);
 #endif
 
 double PostOrderRecurAlgorithm(int N, int *prnts, double *nwghts, double *ewghts, int *schedule);

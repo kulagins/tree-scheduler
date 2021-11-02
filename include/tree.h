@@ -121,119 +121,119 @@ public :
         delete children;
     }
 
-    void SetMSDiff(double slack) {
+    void set_ms_diff(double slack) {
         makespan_difference = slack;
     }
 
-    double GetMSDiff() {
+    double get_ms_diff() {
         return makespan_difference;
     }
 
-    void SetParent(Task *pparent) {
+    void set_parent(Task *pparent) {
         this->parent = pparent;
     }
 
-    void AddChild(Task *pchild) {
+    void add_child(Task *pchild) {
         this->children->push_back(pchild);
         cost_computed = false;
     }
 
-    vector<Task *> *GetChildren() {
+    vector<Task *> *get_children() {
         return children;
     }
 
-    Task *GetChild(unsigned int node_id) {
+    Task *get_child(unsigned int node_id) {
         return children->at(node_id);
     }
 
-    Task *GetParent() {
+    Task *get_parent() {
         return parent;
     }
 
-    bool IsLeaf() const {
+    bool is_leaf() const {
         return children->size() == 0;
     }
 
-    bool IsRoot() const {
+    bool is_root() const {
         return parent_id == 0;
     }
-
-    double GetCost() {
+    
+    double get_cost() {
         if (!cost_computed) {
             cost = edge_weight + node_weight;
             for (vector<Task *>::iterator iter = children->begin(); iter != children->end(); iter++) {
-                cost += (*iter)->GetEW();
+                cost += (*iter)->get_edge_weight();
             }
             cost_computed = true;
         }
         return cost;
     }
 
-    void SetParentId(unsigned int pparent_id) {
+    void set_parent_id(unsigned int pparent_id) {
         parent_id = pparent_id;
     }
 
-    void SetId(unsigned int pid) {
+    void set_id(unsigned int pid) {
         id = pid;
     }
 
-    void SetLabel(int pid) {
+    void set_label(int pid) {
         label = pid;
     }
 
-    void SetEW(double ew) {
+    void set_edge_weight(double ew) {
         edge_weight = ew;
     }
 
-    void SetNW(double nw) {
+    void set_node_weight(double nw) {
         node_weight = nw;
     }
 
-    void SetMSW(double mw) {
+    void set_makespan_weight(double mw) {
         MS_weight = mw;
     }
 
-    unsigned int GetParentId() const {
+    unsigned int get_parent_id() const {
         return parent_id;
     }
 
-    double GetEW() const {
+    double get_edge_weight() const {
         return edge_weight;
     }
 
-    double GetNW() const {
+    double get_node_weight() const {
         return node_weight;
     }
 
-    double GetMSW() const {
+    double get_makespan_weight() const {
         return MS_weight;
     }
 
-    unsigned int GetId() const {
+    unsigned int get_id() const {
         return id;
     }
 
-    int GetLabel() const {
+    int get_label() const {
         return label;
     }
 
-    void Print(ostream &out) const {
-        out << max((unsigned int) 0, GetParentId()) << " " << GetNW() << " " << GetEW() << endl;
+    void print(ostream &out) const {
+        out << max((unsigned int) 0, get_parent_id()) << " " << get_node_weight() << " " << get_edge_weight() << endl;
         for (vector<Task *>::iterator iter = children->begin(); iter != children->end(); iter++) {
-            (*iter)->Print(out);
+            (*iter)->print(out);
         }
 
     }
 
-    void BreakEdge() {
+    void break_edge() {
         broken = true;//break this edge
     }
 
-    void RestoreEdge() {
+    void restore_edge() {
         broken = false;//resotre this edge
     }
 
-    bool IsBroken() {
+    bool is_broken() {
         if (broken == true) {
             return true;
         } else {
@@ -241,19 +241,19 @@ public :
         }
     }
 
-    void updateMSCost() {
+    void update_makespan_cost() {
         makespan_nocommu = MS_sequentialPart + MS_parallelPart;
     }
 
-    double GetSequentialPart() {
+    double get_sequential_part() {
         return MS_sequentialPart;
     }
 
-    double GetParallelPart() {
+    double get_parallel_part() {
         return MS_parallelPart;
     }
 
-    double GetMSsequential(bool updateEnforce, double &MS_parallel) {
+    double get_makespan_sequential(bool updateEnforce, double &MS_parallel) {
         if ((makespan_computed == true) & (updateEnforce == false)) {
             return MS_sequentialPart;
         }
@@ -261,17 +261,17 @@ public :
         MS_sequentialPart = MS_weight;
         MS_parallelPart = 0;
         double temp;
-        for (vector<Task *>::iterator iter = this->GetChildren()->begin(); iter != this->GetChildren()->end(); ++iter) {
-            if ((*iter)->IsBroken()) {
-                //cout<<"edge "<<(*iter)->GetId()<<" broken"<<endl;
-                temp = (*iter)->GetMSCost(true, updateEnforce);
+        for (vector<Task *>::iterator iter = this->get_children()->begin(); iter != this->get_children()->end(); ++iter) {
+            if ((*iter)->is_broken()) {
+                //cout<<"edge "<<(*iter)->get_id()<<" broken"<<endl;
+                temp = (*iter)->get_makespan_cost(true, updateEnforce);
                 if (temp > MS_parallelPart) {
                     MS_parallelPart = temp;
                 }
             } else {
-                MS_sequentialPart += (*iter)->GetMSsequential(updateEnforce, MS_parallelPart);
+                MS_sequentialPart += (*iter)->get_makespan_sequential(updateEnforce, MS_parallelPart);
                 if (updateEnforce == true) {
-                    (*iter)->updateMSCost();
+                    (*iter)->update_makespan_cost();
                 }
             }
         }
@@ -283,23 +283,23 @@ public :
         return MS_sequentialPart;
     }
 
-    double GetMSminusComu() {
+    double get_makespan_minus_comu() {
         if (Cluster::getFixedCluster()->isHomogeneous()) {
             return (makespan_nocommu - edge_weight / Cluster::getFixedCluster()->getHomogeneousBandwidth());
         } else throw "Cluster not homogeneous";
     }
 
-    double GetMSminusW() {
+    double get_makespan_minus_w() {
         if (Cluster::getFixedCluster()->isHomogeneous()) {
             return (makespan_nocommu + edge_weight / Cluster::getFixedCluster()->getHomogeneousBandwidth() - MS_weight);
         } else throw "Cluster not homogeneous";
     }
 
-    void SetMSUncomputed() {
+    void set_makespan_uncomputed() {
         makespan_computed = false;
     }
 
-    double GetMSCost(bool commulication = false, bool updateEnforce = false) {
+    double get_makespan_cost(bool commulication = false, bool updateEnforce = false) {
         if (!Cluster::getFixedCluster()->isHomogeneous()) throw "Cluster not homogeneous";
 
         if ((makespan_computed == true) & (updateEnforce == false)) {
@@ -311,7 +311,7 @@ public :
         }
 
         MS_parallelPart = 0;
-        MS_sequentialPart = this->GetMSsequential(updateEnforce, MS_parallelPart);//MS_parallelPart will be update here.
+        MS_sequentialPart = this->get_makespan_sequential(updateEnforce, MS_parallelPart);//MS_parallelPart will be update here.
         makespan_nocommu = MS_sequentialPart + MS_parallelPart;
 
         makespan_computed = true;
@@ -324,33 +324,33 @@ public :
         return makespan_nocommu;
     }
 
-    void SetothersideID(unsigned int qtreeID) {
+    void set_other_side_id(unsigned int qtreeID) {
         Qtree_id = qtreeID;
     }
 
-    unsigned int GetothersideID() {
+    unsigned int get_other_side_id() {
         return Qtree_id;
     }
 
-    void RemoveChild(unsigned int childId) {
+    void remove_child(unsigned int childId) {
         for (vector<Task *>::iterator iter = this->children->begin(); iter != this->children->end(); ++iter) {
-            if ((*iter)->GetId() == childId) {
+            if ((*iter)->get_id() == childId) {
                 this->children->erase(iter);
                 break;
             }
         }
     }
 
-    void MergetoParent() {
-        this->GetParent()->SetMSW(this->GetMSW() + this->GetParent()->GetMSW());
-        this->GetParent()->RemoveChild(this->id);
-        this->GetParent()->GetChildren()->insert(this->GetParent()->GetChildren()->end(), this->children->begin(),
+    void merge_to_parent() {
+        this->get_parent()->set_makespan_weight(this->get_makespan_weight() + this->get_parent()->get_makespan_weight());
+        this->get_parent()->remove_child(this->id);
+        this->get_parent()->get_children()->insert(this->get_parent()->get_children()->end(), this->children->begin(),
                                                  this->children->end());
         //cout<<", children: ";
         for (vector<Task *>::iterator iter = this->children->begin(); iter != this->children->end(); ++iter) {
-            //cout<<(*iter)->GetId()<<" ";
-            (*iter)->SetParent(this->GetParent());
-            (*iter)->SetParentId(this->GetParent()->GetId());
+            //cout<<(*iter)->get_id()<<" ";
+            (*iter)->set_parent(this->get_parent());
+            (*iter)->set_parent_id(this->get_parent()->get_id());
         }
         //cout<<endl;
         this->children->clear();
@@ -363,7 +363,7 @@ public :
 
     double Sequence();
 
-    double SplitSubtrees(bool twolevel, list<Task *> &parallelRoots, unsigned long &sequentialLength);
+    double splt_subtrees(bool twolevel, list<Task *> &parallelRoots, unsigned long &sequentialLength);
 
     list<Task *> fillParallelRootsUntilBestMakespan(vector<double> &makespansOfSplittings,
                                                     unsigned long stepsUntilMinimalMakespan) const;
@@ -378,6 +378,8 @@ protected:
     unsigned int root_count;
     unsigned int offset_id;
     unsigned int tree_id;
+
+    Task * root;
 
     static Tree *originalTree;
 
@@ -398,30 +400,30 @@ public:
         tree_id = 1;
         nodes = new vector<Task *>();
 
-        this->AllocateNodes(N);
+        this->allocate_nodes(N);
 
         for (int i = 1; i < N + 1; i++) {
             //cout << "node id: " << i<<endl;
-            Task *cur_node = this->GetNode(i);
-            cur_node->GetChildren()->clear();
-            cur_node->SetEW(ewghts[i]);
-            cur_node->SetNW(nwghts[i]);
-            cur_node->SetMSW(mswghts[i]);
-            cur_node->SetId(i);
-            cur_node->SetLabel(i);
+            Task *cur_node = this->get_node(i);
+            cur_node->get_children()->clear();
+            cur_node->set_edge_weight(ewghts[i]);
+            cur_node->set_node_weight(nwghts[i]);
+            cur_node->set_makespan_weight(mswghts[i]);
+            cur_node->set_id(i);
+            cur_node->set_label(i);
         }
 
         for (int i = 1; i < N + 1; i++) {
-            Task *cur_node = this->GetNode(i);
+            Task *cur_node = this->get_node(i);
 
             if (prnts[i] > 0) {
-                cur_node->SetParentId(prnts[i]);
-                cur_node->SetParent(this->GetNode(prnts[i]));
-                this->GetNode(prnts[i])->AddChild(cur_node);
+                cur_node->set_parent_id(prnts[i]);
+                cur_node->set_parent(this->get_node(prnts[i]));
+                this->get_node(prnts[i])->add_child(cur_node);
             } else {
-                cur_node->SetParentId(0);
-                this->SetRootId(i);
-                this->SetTreeId(i);
+                cur_node->set_parent_id(0);
+                this->set_root_id(i);
+                this->set_tree_id(i);
             }
         }
     }
@@ -439,27 +441,27 @@ public:
 
     ~Tree() {
         if (root_index != 0 && nodes->size() > 0) {
-            delete GetRoot();
+            delete get_root();
         }
 
         delete nodes;
     }
 
 
-    void Print(ostream &out) const {
+    void print(ostream &out) const {
         out << nodes->size() << endl;
 
         for (vector<Task *>::iterator iter = nodes->begin(); iter != nodes->end(); iter++) {
-            out << max((unsigned int) 0, (*iter)->GetParentId()/*+1-offset_id*/) << " " << (*iter)->GetNW() << " "
-                << (*iter)->GetEW() << endl;
+            out << max((unsigned int) 0, (*iter)->get_parent_id()/*+1-offset_id*/) << " " << (*iter)->get_node_weight() << " "
+                << (*iter)->get_edge_weight() << endl;
         }
 
     }
 
 
-    void AllocateNodes(int new_node_count) {
+    void allocate_nodes(int new_node_count) {
         if (root_count > 0 && nodes->size() > 0) {
-            delete GetRoot();
+            delete get_root();
         }
 
         nodes->resize(new_node_count);
@@ -467,91 +469,75 @@ public:
         unsigned int i = 0;
         for (vector<Task *>::iterator iter = nodes->begin(); iter != nodes->end(); iter++) {
             *iter = new Task();
-            (*iter)->SetId(i++);
+            (*iter)->set_id(i++);
         }
 
-        offset_id = nodes->front()->GetId();
+        offset_id = nodes->front()->get_id();
     }
     void reverse_vector(){
         reverse(nodes->begin(),nodes->end());
     }
 
-    void AddNode(Task *newNode) {
+    void add_node(Task *newNode) {
         nodes->push_back(newNode);
     }
 
-    void AddRoot(Task *newNode) {
+    void add_root(Task *newNode) {
         root_count++;
         assert(root_count == 1);
         nodes->push_back(newNode);
         root_index = nodes->size() - 1;
+        this->root = newNode;
     }
 
-    Task *GetRoot() const {
-        return nodes->at(root_index - 1);
+    Task *get_root() const {
+        assert (root_count ==1);
+        return this->root;
     }
 
-    unsigned int GetRootId() const {
-        return root_index;
+    unsigned int get_root_id() const {
+        return this->get_root()->get_id();
     }
 
-    void SetRootId(unsigned int root_id) {
+    void set_root_id(unsigned int root_id) {
         root_index = root_id;
     }
 
-    void SetTreeId(unsigned int _id) {
+    void set_tree_id(unsigned int _id) {
         tree_id = _id;
     }
 
-    Task *GetNode(unsigned int node_id) const {
-// in most cases, the task with a specific ID is found on the position that is exactly before the ID
-// however, if this is not the case we do a linear search to find where the task is
-
-        unsigned int i = 0;
+    Task *get_node(unsigned int node_id) const {
         Task * task =nodes->at(node_id - 1);
-        if (task->GetId() == node_id){
-                return task;
-        }else{
-            
-            unsigned long treeSize = this->GetNodes()->size();
-            for (i=0 ;i<treeSize;i++) {
-                task = this->GetNodeByPos(i);
-                if (task->GetId() == node_id){
-                    return task;
-                }
-            }
+        if (task->get_id()!=node_id){
+            throw runtime_error("Task not found for id " + to_string(node_id));
         }
-        cout << this->GetNodeByPos(i-1)->GetId();
-        throw "Task not Found!";
+        return task;
     }
 
-    Task *GetNodeByPos(unsigned int node_idx) const {
-        assert(node_idx<this->GetNodes()->size());
+    Task *get_node_by_position(unsigned int node_idx) const {
+        assert(node_idx<this->get_nodes()->size());
         return nodes->at(node_idx);
     }
 
-    const vector<Task *> *GetNodes() const {
+    const vector<Task *> *get_nodes() const {
         return nodes;
     }
 
-    void addNode(Task *newnode) {
-        this->nodes->push_back(newnode);
-    }
-
-    static void setOriginalTree(Tree *origTree) {
+   static void set_original_tree(Tree *origTree) {
         Tree::originalTree = origTree;
     }
 
-    static Tree *getOriginalTree() {
+    static Tree *get_original_tree() {
         return Tree::originalTree;
     }
 
-    void printBrokenEdges() {
-        cout << "Print broken edges" << endl;
-        unsigned long treeSize = this->GetNodes()->size();
+    void print_broken_edges() {
+        cout << "print broken edges" << endl;
+        unsigned long treeSize = this->get_nodes()->size();
         for (unsigned int i = treeSize; i >= 1; --i) {
-            Task *currentnode = this->GetNode(i);
-            if (currentnode->IsBroken()) {
+            Task *currentnode = this->get_node(i);
+            if (currentnode->is_broken()) {
                 cout << i << " ";
             }
         }
@@ -562,23 +548,23 @@ public:
 
     Tree *BuildQtree();
 
-    unsigned int HowmanySubtrees(bool quiet);
+    unsigned int how_many_subtrees(bool quiet);
 
-    bool MemoryEnough(Task *Qrootone, Task *Qroottwo, bool leaf, double memory_size, int *chstart, int *children);
+    bool memory_enough(Task *Qrootone, Task *Qroottwo, bool leaf, double memory_size, int *chstart, int *children);
 
-    double ImprovedSplit(unsigned int number_processor, int *chstart, int *childrenID);
+    double improved_split(unsigned int number_processor, int *chstart, int *childrenID);
 
-    double Merge(unsigned int num_subtrees, int *chstart, int *childrenID, bool CheckMemory);
+    double merge(unsigned int num_subtrees, int *chstart, int *childrenID, bool CheckMemory);
 
-    double MergeV2(unsigned int num_subtrees, unsigned int processor_number, double const memory_size, int *chstart,
+    double merge_v2(unsigned int num_subtrees, unsigned int processor_number, double const memory_size, int *chstart,
                    int *childrenID, bool CheckMemory);
 
-    double SplitAgain();
+    double split_again();
 
-    double SplitAgainV2(unsigned int processor_number, unsigned int num_subtrees, std::map<int, int> &taskToPrc,
+    double split_again_v2(unsigned int processor_number, unsigned int num_subtrees, std::map<int, int> &taskToPrc,
                         std::map<int, bool> &isProcBusy);
 
-    vector<Task *> buildCriticalPath();
+    vector<Task *> build_critical_path();
 };
 
 
@@ -598,30 +584,30 @@ void po_construct(const int N, const int *prnts, int **chstart, int **chend, int
 void poaux(const int *chstart, const int *children, int N, int r, int *por, int *label);
 } /* closing brace for extern "C" */
 
-double MaxOutDegree(Tree *tree, int quiet);
+double max_out_degree(Tree *tree, int quiet);
 
-double MaxOutDegree(int N, double *nwghts, double *ewghts, int *chstart, int *children);
+double max_out_degree(int N, double *nwghts, double *ewghts, int *chstart, int *children);
 
-double IOCounter(Tree *tree, int N, double *nwghts, double *ewghts, int *chstart, int *children, int *schedule,
+double io_counter(Tree *tree, int N, double *nwghts, double *ewghts, int *chstart, int *children, int *schedule,
                  double available_memory, bool divisible, int quiet, unsigned int &com_freq,
                  vector<unsigned int> *brokenEdges, io_method_t method);
 
 double
-IOCounterWithVariableMem(Tree *tree, int N, double *nwghts, double *ewghts, int *chstart, int *children, int *schedule,
+io_counter_with_variable_mem(Tree *tree, int N, double *nwghts, double *ewghts, int *chstart, int *children, int *schedule,
                          vector<double> availableMemorySizesA2, int &currentProcessor,
                          std::map<int, int> &taskToPrc, std::map<int, bool> &isProcBusy, bool divisible, int quiet,
                          unsigned int &com_freq, vector<unsigned int> *brokenEdges, io_method_t method);
 
-Tree *BuildSubtree(Tree *tree, Task *SubtreeRoot, unsigned int new_tree_size, int **prnts, double **ewghts,
+Tree *build_subtree(Tree *tree, Task *SubtreeRoot, unsigned int new_tree_size, int **prnts, double **ewghts,
                    double **timewghts, double **spacewghts, int *chstart, int *children);
 
-void popSmallestRootsToFitToCluster(list<Task *> &parallelRoots, unsigned long amountSubtrees);
+void pop_smallest_roots_to_fit_to_cluster(list<Task *> &parallelRoots, unsigned long amountSubtrees);
 
-void breakPreparedEdges(Task *root, list<Task *> &parallelRoots);
+void break_prepared_edges(Task *root, list<Task *> &parallelRoots);
 
-double getWeightPQ(list<Task *> &parallelRoots, Task *currentNode);
+double get_weight_pq(list<Task *> &parallelRoots, Task *currentNode);
 
-double getWeightSurplusFromSmallestNodes(list<Task *> &parallelRoots);
+double get_weight_surplus_from_smallest_node(list<Task *> &parallelRoots);
 
 #endif
 #endif

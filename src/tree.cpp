@@ -48,11 +48,11 @@ double u_wseconds(void) {
 
 ///Qtree corresponds to a whole original tree
 Tree *Tree::BuildQtree() { //Qtree is for makespan side, so do not use it for space side
-    Task *root = this->GetRoot();
-    root->BreakEdge();
-    this->GetRoot()->GetMSCost(true, true); //update
-    size_t tree_size = this->GetNodes()->size();
-    unsigned long num_subtrees = this->HowmanySubtrees(true);
+    Task *root = this->get_root();
+    root->break_edge();
+    this->get_root()->get_makespan_cost(true, true); //update
+    size_t tree_size = this->get_nodes()->size();
+    unsigned long num_subtrees = this->how_many_subtrees(true);
 
     int *prnts = new int[num_subtrees + 1];
     double *ewghts = new double[num_subtrees + 1];
@@ -63,36 +63,36 @@ Tree *Tree::BuildQtree() { //Qtree is for makespan side, so do not use it for sp
     brokenEdges[1] = 1; //root node
     prnts[1] = 0;
     ewghts[1] = 0;
-    timewghts[1] = root->GetSequentialPart();
+    timewghts[1] = root->get_sequential_part();
     unsigned int j = 2;
-    root->SetothersideID(1);
+    root->set_other_side_id(1);
 
     Task *currentNode;
     for (unsigned int i = 2; i <= tree_size; ++i) {
-        currentNode = this->GetNode(i);
-        if (currentNode->IsBroken()) {
-            currentNode->SetothersideID(j); //corresponding node's ID on Qtree
+        currentNode = this->get_node(i);
+        if (currentNode->is_broken()) {
+            currentNode->set_other_side_id(j); //corresponding node's ID on Qtree
             brokenEdges[j] = i;
-            timewghts[j] = currentNode->GetSequentialPart();
-            ewghts[j] = currentNode->GetEW();
+            timewghts[j] = currentNode->get_sequential_part();
+            ewghts[j] = currentNode->get_edge_weight();
             ++j;
         }
     }
 
     for (unsigned int i = 2; i <= num_subtrees; ++i) {
-        currentNode = this->GetNode(brokenEdges[i])->GetParent();
-        while (!currentNode->IsBroken()) {
-            currentNode = currentNode->GetParent();
+        currentNode = this->get_node(brokenEdges[i])->get_parent();
+        while (!currentNode->is_broken()) {
+            currentNode = currentNode->get_parent();
         }
-        prnts[i] = currentNode->GetothersideID();
+        prnts[i] = currentNode->get_other_side_id();
     }
 
     Tree *Qtreeobj = new Tree(num_subtrees, prnts, timewghts, ewghts,
                               timewghts); //Qtree only reprents makespan, not memory consumption
 
     for (unsigned int i = 1; i <= num_subtrees; i++) {
-        Qtreeobj->GetNode(i)->BreakEdge();                    //break edge
-        Qtreeobj->GetNode(i)->SetothersideID(brokenEdges[i]); //corresponding node's ID on tree
+        Qtreeobj->get_node(i)->break_edge();                    //break edge
+        Qtreeobj->get_node(i)->set_other_side_id(brokenEdges[i]); //corresponding node's ID on tree
     }
 
     delete[] prnts;
@@ -103,18 +103,18 @@ Tree *Tree::BuildQtree() { //Qtree is for makespan side, so do not use it for sp
     return Qtreeobj;
 }
 
-unsigned int Tree::HowmanySubtrees(bool quiet) {
+unsigned int Tree::how_many_subtrees(bool quiet) {
     unsigned int number_subtrees = 0;
-    this->GetRoot()->BreakEdge();
-    const vector<Task *> *Nodes = this->GetNodes();
+    this->get_root()->break_edge();
+    const vector<Task *> *Nodes = this->get_nodes();
     if (quiet == false) {
         cout << "Broken Edges { ";
     }
     for (auto it = Nodes->begin(); it != Nodes->end(); ++it) {
-        if ((*it)->IsBroken()) {
+        if ((*it)->is_broken()) {
             number_subtrees++;
             if (quiet == false) {
-                cout << (*it)->GetId() << " ";
+                cout << (*it)->get_id() << " ";
             }
         }
     }
@@ -124,23 +124,23 @@ unsigned int Tree::HowmanySubtrees(bool quiet) {
     return number_subtrees;
 }
 
-bool Tree::MemoryEnough(Task *Qrootone, Task *Qroottwo, bool leaf, double memory_size, int *chstart, int *children) {
+bool Tree::memory_enough(Task *Qrootone, Task *Qroottwo, bool leaf, double memory_size, int *chstart, int *children) {
     bool enough = false;
-    unsigned long new_tree_size = this->GetNodes()->size();
+    unsigned long new_tree_size = this->get_nodes()->size();
 
-    Task *SubtreeRoot = this->GetNode(Qrootone->GetothersideID());
+    Task *SubtreeRoot = this->get_node(Qrootone->get_other_side_id());
 
-    vector<Task *> *childrenvector = Qrootone->GetChildren();
+    vector<Task *> *childrenvector = Qrootone->get_children();
     if ((leaf == true) & (childrenvector->size() == 2)) {
-        this->GetNode(childrenvector->front()->GetothersideID())->RestoreEdge();
-        this->GetNode(childrenvector->back()->GetothersideID())->RestoreEdge();
+        this->get_node(childrenvector->front()->get_other_side_id())->restore_edge();
+        this->get_node(childrenvector->back()->get_other_side_id())->restore_edge();
     } else {
-        this->GetNode(Qroottwo->GetothersideID())->RestoreEdge(); //restore edge temporarilly
+        this->get_node(Qroottwo->get_other_side_id())->restore_edge(); //restore edge temporarilly
     }
 
     double *ewghts, *timewghts, *spacewghts;
     int *prnts;
-    Tree *subtree = BuildSubtree(this, SubtreeRoot, new_tree_size, &prnts, &ewghts, &timewghts, &spacewghts, chstart,
+    Tree *subtree = build_subtree(this, SubtreeRoot, new_tree_size, &prnts, &ewghts, &timewghts, &spacewghts, chstart,
                                  children);
     delete[] ewghts;
     delete[] timewghts;
@@ -149,7 +149,7 @@ bool Tree::MemoryEnough(Task *Qrootone, Task *Qroottwo, bool leaf, double memory
     double maxout, requiredMemory;
     uint64_t count = 0;
     schedule_t *schedule_f = new schedule_t();
-    maxout = MaxOutDegree(subtree, true);
+    maxout = max_out_degree(subtree, true);
     MinMem(subtree, maxout, requiredMemory, *schedule_f, true, count);
 
     if (requiredMemory <= memory_size) {
@@ -157,10 +157,10 @@ bool Tree::MemoryEnough(Task *Qrootone, Task *Qroottwo, bool leaf, double memory
     }
 
     if ((leaf == true) & (childrenvector->size() == 2)) {
-        this->GetNode(childrenvector->front()->GetothersideID())->BreakEdge();
-        this->GetNode(childrenvector->back()->GetothersideID())->BreakEdge();
+        this->get_node(childrenvector->front()->get_other_side_id())->break_edge();
+        this->get_node(childrenvector->back()->get_other_side_id())->break_edge();
     } else {
-        this->GetNode(Qroottwo->GetothersideID())->BreakEdge();
+        this->get_node(Qroottwo->get_other_side_id())->break_edge();
     }
 
     delete subtree;
@@ -171,7 +171,7 @@ bool Tree::MemoryEnough(Task *Qrootone, Task *Qroottwo, bool leaf, double memory
 
 
 double Task::Sequence() {
-    return this->GetMSCost();
+    return this->get_makespan_cost();
 }
 
 Tree * read_tree(const char *filename){
@@ -204,26 +204,25 @@ Tree * read_tree(const char *filename){
             line_stream >> id >> parent_id >> nw >> msw >> ew;
 
             if (parent_id == 0 ){
-                task = new Task(0, nw,ew,msw);
-                task->SetId(1+num_tasks-id);
-                tree->AddRoot(task);
+                task = new Task(nw,ew,msw);
+                task->set_id(1+num_tasks-id);
+                tree->add_root(task);
             }else{
                 task = new Task(1+num_tasks-parent_id, nw,ew,msw);
-                task->SetId(1+num_tasks-id);
-                // DISCLAIMER: this is not working properly until tree::AddRoot has been refactored.
-                // it is missing adding the children.
-                tree->addNode(task);
+                task->set_id(1+num_tasks-id);
+                tree->add_node(task);
             }
         }
     } 
     tree->reverse_vector();
     Task * parent;
-    unsigned long treeSize = tree->GetNodes()->size();
+    unsigned long treeSize = tree->get_nodes()->size();
     for (unsigned int i = 0;i<treeSize;i++) {
-        Task * task = tree->GetNodeByPos(i);
-        if(!task->IsRoot()){
-            Task * parent = tree->GetNode(task->GetParentId());
-            task ->SetParent(parent);
+        Task * task = tree->get_node_by_position(i);
+        if(!task->is_root()){
+            Task * parent = tree->get_node(task->get_parent_id());
+            task ->set_parent(parent);
+            parent ->add_child(task);
         }
     }
     return tree;
@@ -352,7 +351,7 @@ void po_construct(const int N, const int *prnts, int **chstart, int **chend, int
     }
 }
 
-double IOCounter(Tree &tree, schedule_t &sub_schedule, double available_memory, bool divisible, int quiet) {
+double io_counter(Tree &tree, schedule_t &sub_schedule, double available_memory, bool divisible, int quiet) {
     double memory_occupation = 0;
     double io_volume = 0;
     io_map unloaded_nodes;
@@ -360,7 +359,7 @@ double IOCounter(Tree &tree, schedule_t &sub_schedule, double available_memory, 
 
     /*iterates through the given permutation (schedule)*/
     for (schedule_t::iterator cur_task_id = sub_schedule.begin(); cur_task_id != sub_schedule.end(); cur_task_id++) {
-        Task *cur_node = tree.GetNode(*cur_task_id);
+        Task *cur_node = tree.get_node(*cur_task_id);
 
         /*if the node was unloaded*/
         if (unloaded_nodes.find(*cur_task_id) != unloaded_nodes.end()) {
@@ -372,7 +371,7 @@ double IOCounter(Tree &tree, schedule_t &sub_schedule, double available_memory, 
             unloaded_nodes.erase(*cur_task_id);
         }
 
-        double data_to_unload = memory_occupation + cur_node->GetCost() - cur_node->GetEW() - available_memory;
+        double data_to_unload = memory_occupation + cur_node->get_cost() - cur_node->get_edge_weight() - available_memory;
         if (!quiet) {
             cerr << "min data to unload " << data_to_unload << endl;
         }
@@ -384,7 +383,7 @@ double IOCounter(Tree &tree, schedule_t &sub_schedule, double available_memory, 
             while ((far_node_id != loaded_nodes.rend()) && (unloaded_data < data_to_unload)) {
                 /*try to unload this node*/
                 bool is_already_unloaded = false;
-                double remaining_loaded_data = tree.GetNode(*far_node_id)->GetEW();
+                double remaining_loaded_data = tree.get_node(*far_node_id)->get_edge_weight();
                 if (unloaded_nodes.find(*far_node_id) != unloaded_nodes.end()) {
                     is_already_unloaded = true;
                     remaining_loaded_data = max(remaining_loaded_data - unloaded_nodes[*far_node_id], 0.0);
@@ -422,7 +421,7 @@ double IOCounter(Tree &tree, schedule_t &sub_schedule, double available_memory, 
             cerr << "occupation before processing " << memory_occupation << endl;
         }
         /*if we have enough memory to process the node, update occupation*/
-        memory_occupation += cur_node->GetCost() - 2 * cur_node->GetEW() - cur_node->GetNW();
+        memory_occupation += cur_node->get_cost() - 2 * cur_node->get_edge_weight() - cur_node->get_node_weight();
         if (!quiet) {
             cerr << "processing " << *cur_task_id << endl;
         }
@@ -434,12 +433,12 @@ double IOCounter(Tree &tree, schedule_t &sub_schedule, double available_memory, 
         if (!quiet) {
             cerr << "loading ";
         }
-        for (vector<Task *>::iterator child = cur_node->GetChildren()->begin();
-             child != cur_node->GetChildren()->end(); child++) {
+        for (vector<Task *>::iterator child = cur_node->get_children()->begin();
+             child != cur_node->get_children()->end(); child++) {
             if (!quiet) {
-                cerr << (*child)->GetId() << " ";
+                cerr << (*child)->get_id() << " ";
             }
-            loaded_nodes.push_back((*child)->GetId());
+            loaded_nodes.push_back((*child)->get_id());
         }
         if (!quiet) {
             cerr << endl;
@@ -461,7 +460,7 @@ double unload_largest_first_fit(Tree *tree, vector<unsigned int> &unloaded_nodes
     list<node_ew>::iterator largest_node = loaded_nodes.begin();
     while ((largest_node != loaded_nodes.end()) && (unloaded_data < data_to_unload)) {
         largest_node = loaded_nodes.begin();
-        tree->GetNode(largest_node->first)->BreakEdge(); //break this edge;
+        tree->get_node(largest_node->first)->break_edge(); //break this edge;
         //cout<<"******Largest first: break edge "<<largest_node->first<<endl;
         double edge_weight = largest_node->second;
         unloaded_data += edge_weight;
@@ -536,7 +535,7 @@ double unload_furthest_nodes(Tree *tree, vector<unsigned int> &unloaded_nodes, l
 
             cout << "old loaded nodes size " << old_loaded_nodes.size() << endl;
             cout << "old loaded nodes first " << old_loaded_nodes.begin()->first << endl;
-            tree->GetNode(far_node->first)->BreakEdge(); //break this edge
+            tree->get_node(far_node->first)->break_edge(); //break this edge
             loaded_nodes.pop_front();
         }
 
@@ -572,7 +571,7 @@ double unload_furthest_first_fit(Tree *tree, vector<unsigned int> &unloaded_node
             //cout<<"break edge "<<far_node->first<<endl;
             unloaded_data += local_data_to_unload;
             unloaded_nodes.push_back(far_node->first);
-            tree->GetNode(far_node->first)->BreakEdge(); //break this edge
+            tree->get_node(far_node->first)->break_edge(); //break this edge
             loaded_nodes.erase(far_node);
             return unloaded_data;
         }
@@ -993,7 +992,7 @@ double unload_best_furthest_nodes(io_map &unloaded_nodes, schedule_t &loaded_nod
     return unloaded_data;
 }
 
-double IOCounter(Tree *tree, int N, double *nwghts, double *ewghts, int *chstart, int *children, int *schedule,
+double io_counter(Tree *tree, int N, double *nwghts, double *ewghts, int *chstart, int *children, int *schedule,
                  double available_memory,
                  bool divisible, int quiet, unsigned int &com_freq, vector<unsigned int> *brokenEdges,
                  io_method_t method) {
@@ -1027,7 +1026,7 @@ double IOCounter(Tree *tree, int N, double *nwghts, double *ewghts, int *chstart
             unloaded = find(unloaded_nodes.begin(), unloaded_nodes.end(), cur_task_id);
             if (unloaded != unloaded_nodes.end()) { //find node cur_task_id unloaded
                 //cout<<", (break) "<<endl;
-                brokenEdges->push_back(tree->GetNode(cur_task_id)->GetothersideID());
+                brokenEdges->push_back(tree->get_node(cur_task_id)->get_other_side_id());
                 ++com_freq;
                 unloaded_nodes.erase(unloaded);
                 temp.clear();
@@ -1059,14 +1058,14 @@ double IOCounter(Tree *tree, int N, double *nwghts, double *ewghts, int *chstart
 
                 double *ewghtssub, *timewghtssub, *spacewghtssub;
                 int *prntssub;
-                Tree *subtree = BuildSubtree(tree, tree->GetNode(cur_task_id), subtree_size, &prntssub, &ewghtssub,
+                Tree *subtree = build_subtree(tree, tree->get_node(cur_task_id), subtree_size, &prntssub, &ewghtssub,
                                              &timewghtssub, &spacewghtssub, chstart, children);
 
-                subtree_size = subtree->GetNodes()->size();
+                subtree_size = subtree->get_nodes()->size();
                 cout << "subtree size " << subtree_size << endl;
 
                 int *schedule_copy = new int[subtree_size + 1];
-                maxoutD = MaxOutDegree(subtree, true);
+                maxoutD = max_out_degree(subtree, true);
                 schedule_f->clear();
                 count = 0;
                 MinMem(subtree, maxoutD, memory_required, *schedule_f, true, count);
@@ -1082,13 +1081,13 @@ double IOCounter(Tree *tree, int N, double *nwghts, double *ewghts, int *chstart
                 if (memory_required > available_memory) {
                     // cout << "memory required " << memory_required << ", is larger than what is available BLABLA " << available_memory << endl;
                     // cout << "----------------------Processing subtree!" << endl;
-                    IO_sub = IOCounter(subtree, subtree_size + 1, spacewghtssub, ewghtssub, chstartsub, childrensub,
+                    IO_sub = io_counter(subtree, subtree_size + 1, spacewghtssub, ewghtssub, chstartsub, childrensub,
                                        schedule_copy, available_memory, divisible, quiet, com_freq, &subtreeBrokenEdges,
                                        method);
 
                     for (vector<unsigned int>::iterator iter = subtreeBrokenEdges.begin();
                          iter != subtreeBrokenEdges.end(); ++iter) {
-                        brokenEdges->push_back(tree->GetNode(*iter)->GetothersideID());
+                        brokenEdges->push_back(tree->get_node(*iter)->get_other_side_id());
                     }
                     //   cout << "----------------------Out of Processing subtree!" << endl;
                 }
@@ -1218,7 +1217,7 @@ double IOCounter(Tree *tree, int N, double *nwghts, double *ewghts, int *chstart
 }
 
 double
-IOCounterWithVariableMem(Tree *tree, int N, double *nwghts, double *ewghts, int *chstart, int *children, int *schedule,
+io_counter_with_variable_mem(Tree *tree, int N, double *nwghts, double *ewghts, int *chstart, int *children, int *schedule,
                          Cluster *cluster, bool divisible, int quiet, unsigned int &com_freq,
                          vector<unsigned int> *brokenEdges, io_method_t method) {
     double memory_occupation = ewghts[schedule[N - 1]];
@@ -1251,7 +1250,7 @@ IOCounterWithVariableMem(Tree *tree, int N, double *nwghts, double *ewghts, int 
             unloaded = find(unloaded_nodes.begin(), unloaded_nodes.end(), cur_task_id);
             if (unloaded != unloaded_nodes.end()) { //find node cur_task_id unloaded
                 //cout<<", (break) "<<endl;
-                brokenEdges->push_back(tree->GetNode(cur_task_id)->GetothersideID());
+                brokenEdges->push_back(tree->get_node(cur_task_id)->get_other_side_id());
                 ++com_freq;
                 unloaded_nodes.erase(unloaded);
                 temp.clear();
@@ -1283,13 +1282,13 @@ IOCounterWithVariableMem(Tree *tree, int N, double *nwghts, double *ewghts, int 
 
                 double *ewghtssub, *timewghtssub, *spacewghtssub;
                 int *prntssub;
-                Tree *subtree = BuildSubtree(tree, tree->GetNode(cur_task_id), subtree_size, &prntssub, &ewghtssub,
+                Tree *subtree = build_subtree(tree, tree->get_node(cur_task_id), subtree_size, &prntssub, &ewghtssub,
                                              &timewghtssub, &spacewghtssub, chstart, children);
 
-                subtree_size = subtree->GetNodes()->size();
+                subtree_size = subtree->get_nodes()->size();
 
                 int *schedule_copy = new int[subtree_size + 1];
-                maxoutD = MaxOutDegree(subtree, true);
+                maxoutD = max_out_degree(subtree, true);
                 schedule_f->clear();
                 count = 0;
                 MinMem(subtree, maxoutD, memory_required, *schedule_f, true, count);
@@ -1307,7 +1306,7 @@ IOCounterWithVariableMem(Tree *tree, int N, double *nwghts, double *ewghts, int 
                     //  cout << "----------------------Processing subtree! " << cur_task_id << endl;
                     // currentProcessor++;
                     //INcrease processor??
-                    IO_sub = IOCounterWithVariableMem(subtree, subtree_size + 1, spacewghtssub, ewghtssub, chstartsub,
+                    IO_sub = io_counter_with_variable_mem(subtree, subtree_size + 1, spacewghtssub, ewghtssub, chstartsub,
                                                       childrensub, schedule_copy, cluster, divisible, quiet, com_freq,
                                                       &subtreeBrokenEdges, method);
 
@@ -1315,11 +1314,11 @@ IOCounterWithVariableMem(Tree *tree, int N, double *nwghts, double *ewghts, int 
 
                     for (vector<unsigned int>::iterator iter = subtreeBrokenEdges.begin();
                          iter != subtreeBrokenEdges.end(); ++iter) {
-                        brokenEdges->push_back(tree->GetNode(*iter)->GetothersideID());
+                        brokenEdges->push_back(tree->get_node(*iter)->get_other_side_id());
                     }
                     //    cout << "----------------------Out of Processing subtree!" << endl;
                 } else {
-                    cluster->getFirstFreeProcessor()->assignTask(tree->GetNode(cur_task_id));
+                    cluster->getFirstFreeProcessor()->assignTask(tree->get_node(cur_task_id));
                     //   cout << "just increase proc to " << currentProcessor << endl;
                 }
 
@@ -1440,7 +1439,7 @@ IOCounterWithVariableMem(Tree *tree, int N, double *nwghts, double *ewghts, int 
                     cerr << "New occupation after processing " << memory_occupation << endl;
                 }
             }
-            cluster->getFirstFreeProcessor()->assignTask(tree->GetNode(cur_task_id));
+            cluster->getFirstFreeProcessor()->assignTask(tree->get_node(cur_task_id));
         }
     }
     delete schedule_f;
@@ -1450,15 +1449,15 @@ IOCounterWithVariableMem(Tree *tree, int N, double *nwghts, double *ewghts, int 
 }
 
 
-double MaxOutDegree(Tree *tree, int quiet) {
+double max_out_degree(Tree *tree, int quiet) {
     double max_out = 0;
     double max_j = 0;
-    for (unsigned int j = 1; j <= tree->GetNodes()->size(); j++) {
+    for (unsigned int j = 1; j <= tree->get_nodes()->size(); j++) {
         ////cout<<j<<endl;
-        double cur_out = tree->GetNode(j)->GetCost();
+        double cur_out = tree->get_node(j)->get_cost();
         if (cur_out >= max_out) {
             max_out = cur_out;
-            max_j = tree->GetNode(j)->GetId();
+            max_j = tree->get_node(j)->get_id();
         }
     }
     if (!quiet) {
@@ -1467,7 +1466,7 @@ double MaxOutDegree(Tree *tree, int quiet) {
     return max_out;
 }
 
-double MaxOutDegree(int N, double *nwghts, double *ewghts, int *chstart, int *children) {
+double max_out_degree(int N, double *nwghts, double *ewghts, int *chstart, int *children) {
     double max_out = 0;
     for (int j = 1; j < N + 1; j++) {
         double cur_out = nwghts[j] + ewghts[j];
@@ -1485,13 +1484,13 @@ double MaxOutDegree(int N, double *nwghts, double *ewghts, int *chstart, int *ch
     return max_out;
 }
 
-double MaxOutDegree(int N, int *prnts, double *nwghts, double *ewghts) {
+double max_out_degree(int N, int *prnts, double *nwghts, double *ewghts) {
     int *chstart, *chend, *children;
     int root;
 
     po_construct(N, prnts, &chstart, &chend, &children, &root);
 
-    double max_out = MaxOutDegree(N, nwghts, ewghts, chstart, children);
+    double max_out = max_out_degree(N, nwghts, ewghts, chstart, children);
 
     delete[] chstart;
     delete[] chend;
@@ -1503,25 +1502,25 @@ double MaxOutDegree(int N, int *prnts, double *nwghts, double *ewghts) {
 Tree *SubtreeRooted(Task *node) {
     Tree *subtree = new Tree();
 
-    subtree->SetRootId(1);
-    subtree->SetTreeId(node->GetId());
-    subtree->AddNode(node);
+    subtree->set_root_id(1);
+    subtree->set_tree_id(node->get_id());
+    subtree->add_node(node);
 
     vector<Task *> visit_next;
     vector<Task *>::iterator first_node;
     Task *end_node;
-    if (node->IsLeaf()) {
+    if (node->is_leaf()) {
         return subtree;
     } else {
-        visit_next = *(node->GetChildren());
+        visit_next = *(node->get_children());
         while (!visit_next.empty()) {
-            if (!visit_next.back()->IsBroken()) { // this child has not been cut
-                subtree->AddNode(visit_next.back());
+            if (!visit_next.back()->is_broken()) { // this child has not been cut
+                subtree->add_node(visit_next.back());
                 end_node = visit_next.back();
                 visit_next.pop_back();
-                if (!end_node->IsLeaf()) {
-                    visit_next.insert(visit_next.end(), end_node->GetChildren()->begin(),
-                                      end_node->GetChildren()->end());
+                if (!end_node->is_leaf()) {
+                    visit_next.insert(visit_next.end(), end_node->get_children()->begin(),
+                                      end_node->get_children()->end());
                 }
             } else {
                 visit_next.pop_back();
@@ -1531,7 +1530,7 @@ Tree *SubtreeRooted(Task *node) {
     }
 }
 
-Tree *BuildSubtree(Tree *tree, Task *SubtreeRoot, unsigned int new_tree_size, int **prnts, double **ewghts,
+Tree *build_subtree(Tree *tree, Task *SubtreeRoot, unsigned int new_tree_size, int **prnts, double **ewghts,
                    double **timewghts, double **spacewghts, int *chstart, int *children) {
     *prnts = new int[new_tree_size + 1];
     *ewghts = new double[new_tree_size + 1];
@@ -1542,45 +1541,45 @@ Tree *BuildSubtree(Tree *tree, Task *SubtreeRoot, unsigned int new_tree_size, in
     unsigned int real_tree_size = 0;
     unsigned int nodeID = 1;
     (*prnts)[1] = 0;
-    originalIDs[1] = SubtreeRoot->GetId();
-    (*ewghts)[1] = SubtreeRoot->GetEW();
-    (*timewghts)[1] = SubtreeRoot->GetMSW();
-    (*spacewghts)[1] = SubtreeRoot->GetNW();
+    originalIDs[1] = SubtreeRoot->get_id();
+    (*ewghts)[1] = SubtreeRoot->get_edge_weight();
+    (*timewghts)[1] = SubtreeRoot->get_makespan_weight();
+    (*spacewghts)[1] = SubtreeRoot->get_node_weight();
 
     Task *currentNode;
     list<unsigned int> que;
-    unsigned int originalID = SubtreeRoot->GetId();
+    unsigned int originalID = SubtreeRoot->get_id();
     que.push_back(originalID);
     unsigned int parentID;
-    unsigned int tempid = SubtreeRoot->GetothersideID();
-    SubtreeRoot->SetothersideID(1);
+    unsigned int tempid = SubtreeRoot->get_other_side_id();
+    SubtreeRoot->set_other_side_id(1);
 
     while (!que.empty()) {
         originalID = que.front();
         que.pop_front();
-        parentID = tree->GetNode(originalID)->GetothersideID();
+        parentID = tree->get_node(originalID)->get_other_side_id();
         for (int j = chstart[originalID]; j < chstart[originalID + 1]; j++) {
-            currentNode = tree->GetNode(children[j]);
-            if (!currentNode->IsBroken()) { // broken edge means node is on aother subtree
+            currentNode = tree->get_node(children[j]);
+            if (!currentNode->is_broken()) { // broken edge means node is on aother subtree
                 nodeID++;
                 originalIDs[nodeID] = children[j];
                 (*prnts)[nodeID] = parentID;
-                (*ewghts)[nodeID] = currentNode->GetEW();
-                (*timewghts)[nodeID] = currentNode->GetMSW();
-                (*spacewghts)[nodeID] = currentNode->GetNW();
+                (*ewghts)[nodeID] = currentNode->get_edge_weight();
+                (*timewghts)[nodeID] = currentNode->get_makespan_weight();
+                (*spacewghts)[nodeID] = currentNode->get_node_weight();
                 que.push_back(children[j]);
-                tree->GetNode(children[j])->SetothersideID(nodeID);
+                tree->get_node(children[j])->set_other_side_id(nodeID);
             }
         }
     }
     real_tree_size = nodeID;
 
-    SubtreeRoot->SetothersideID(tempid);
+    SubtreeRoot->set_other_side_id(tempid);
 
     Tree *treeobj = new Tree(real_tree_size, *prnts, *spacewghts, *ewghts, *timewghts);
 
     for (unsigned int i = 1; i <= real_tree_size; i++) {
-        treeobj->GetNode(i)->SetothersideID(originalIDs[i]); //corresponding to the original tree's id
+        treeobj->get_node(i)->set_other_side_id(originalIDs[i]); //corresponding to the original tree's id
     }
 
     delete[] originalIDs;
